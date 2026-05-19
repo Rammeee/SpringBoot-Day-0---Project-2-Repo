@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BugNest — Bug Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Fraunces:wght@600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon"><i class="fa-solid fa-bug"></i></span>
+        <span class="logo-text">BugNest</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-filter="all">
+        <i class="fa-solid fa-grid-2"></i><span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="open">
+        <i class="fa-solid fa-circle-dot"></i><span>Open</span>
+        <span class="nav-badge" id="openCount">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="in-progress">
+        <i class="fa-solid fa-spinner"></i><span>In Progress</span>
+        <span class="nav-badge" id="inProgressCount">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="resolved">
+        <i class="fa-solid fa-circle-check"></i><span>Resolved</span>
+        <span class="nav-badge" id="resolvedCount">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="closed">
+        <i class="fa-solid fa-lock"></i><span>Closed</span>
+        <span class="nav-badge" id="closedCount">0</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="priority-legend">
+        <p class="legend-title">Priority</p>
+        <div class="legend-item"><span class="dot critical"></span> Critical</div>
+        <div class="legend-item"><span class="dot high"></span> High</div>
+        <div class="legend-item"><span class="dot medium"></span> Medium</div>
+        <div class="legend-item"><span class="dot low"></span> Low</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">Bug Dashboard</h1>
+        <p class="page-subtitle">Track, manage, and resolve issues efficiently</p>
+      </div>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Search bugs…" autocomplete="off"/>
+        </div>
+        <button class="btn-primary" id="openModalBtn">
+          <i class="fa-solid fa-plus"></i> New Bug
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Strip -->
+    <section class="stats-strip">
+      <div class="stat-card" data-filter="all">
+        <div class="stat-icon all"><i class="fa-solid fa-bug"></i></div>
+        <div class="stat-info">
+          <span class="stat-num" id="totalCount">0</span>
+          <span class="stat-label">Total</span>
+        </div>
+      </div>
+      <div class="stat-card" data-filter="open">
+        <div class="stat-icon open"><i class="fa-solid fa-circle-dot"></i></div>
+        <div class="stat-info">
+          <span class="stat-num" id="statOpen">0</span>
+          <span class="stat-label">Open</span>
+        </div>
+      </div>
+      <div class="stat-card" data-filter="in-progress">
+        <div class="stat-icon inprogress"><i class="fa-solid fa-spinner"></i></div>
+        <div class="stat-info">
+          <span class="stat-num" id="statInProgress">0</span>
+          <span class="stat-label">In Progress</span>
+        </div>
+      </div>
+      <div class="stat-card" data-filter="resolved">
+        <div class="stat-icon resolved"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="stat-info">
+          <span class="stat-num" id="statResolved">0</span>
+          <span class="stat-label">Resolved</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="filter-group">
+        <label>Priority:</label>
+        <select id="filterPriority">
+          <option value="all">All</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Sort by:</label>
+        <select id="sortBy">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="priority">Priority</option>
+          <option value="title">Title A–Z</option>
+        </select>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="listViewBtn" title="List view"><i class="fa-solid fa-list"></i></button>
+        <button class="view-btn" id="gridViewBtn" title="Grid view"><i class="fa-solid fa-grip"></i></button>
+      </div>
+    </div>
+
+    <!-- Bug List -->
+    <section class="bug-container" id="bugContainer">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon"><i class="fa-solid fa-bug-slash"></i></div>
+        <h3>No bugs found</h3>
+        <p>Start by reporting your first bug</p>
+        <button class="btn-primary" id="emptyAddBtn"><i class="fa-solid fa-plus"></i> Report a Bug</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Add / Edit Bug -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="bugModal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Report a Bug</h2>
+        <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="bugId"/>
+
+        <div class="form-group">
+          <label for="bugTitle">Title <span class="required">*</span></label>
+          <input type="text" id="bugTitle" placeholder="Short, descriptive bug title" maxlength="120"/>
+          <span class="char-count" id="titleCount">0/120</span>
+        </div>
+
+        <div class="form-group">
+          <label for="bugDescription">Description <span class="required">*</span></label>
+          <textarea id="bugDescription" rows="4" placeholder="Steps to reproduce, expected vs actual behaviour…"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="bugPriority">Priority <span class="required">*</span></label>
+            <select id="bugPriority">
+              <option value="">-- Select --</option>
+              <option value="critical">🔴 Critical</option>
+              <option value="high">🟠 High</option>
+              <option value="medium">🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+          </div>
+          <div class="form-group half">
+            <label for="bugStatus">Status</label>
+            <select id="bugStatus">
+              <option value="open">Open</option>
+              <option value="in-progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="bugAssignee">Assignee</label>
+            <input type="text" id="bugAssignee" placeholder="e.g. Jane Doe"/>
+          </div>
+          <div class="form-group half">
+            <label for="bugTag">Tag / Module</label>
+            <input type="text" id="bugTag" placeholder="e.g. Auth, UI, API"/>
+          </div>
+        </div>
+
+        <div class="form-error" id="formError"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="cancelBtn">Cancel</button>
+        <button class="btn-primary" id="saveBugBtn"><i class="fa-solid fa-floppy-disk"></i> Save Bug</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
